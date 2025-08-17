@@ -1,6 +1,8 @@
 #include "cuda/utils.h"
 #include "dequantize.cuh"
+#ifndef CT2_USE_HIP
 #include <cublas_v2.h>
+#endif
 #include <ctranslate2/ops/awq/gemv.h>
 #define PACK_FACTOR 8
 #define WARP_SIZE 32
@@ -10,7 +12,7 @@ namespace ctranslate2 {
     template <int G>
     __global__ void __launch_bounds__(128) gemmv2_forward_4bit_cuda_m128n64k32(int split_k_iters, const half* __restrict__ A, const int* __restrict__ B, const half* __restrict__ scaling_factors, const int* zeros, int M, int IC, int OC, half* __restrict__ C)
     {
-#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ < 750
+#if (defined(__CUDA_ARCH__) && __CUDA_ARCH__ < 750) || defined(CT2_USE_HIP)
       assert(false);
 #else
       static constexpr uint32_t ZERO = 0x0;

@@ -1,5 +1,9 @@
 #pragma once
+#ifdef CT2_USE_HIP
+#include <hip/hip_fp16.h>
+#else
 #include <cuda_fp16.h>
+#endif
 
 namespace ctranslate2 {
   namespace ops {
@@ -13,6 +17,7 @@ namespace ctranslate2 {
 
     __inline__ __device__ uint4 dequantize_s4_to_fp16x2(uint32_t const& source)
     {
+#if 0
       uint4 result;
 
       uint32_t*      h   = reinterpret_cast<uint32_t*>(&result);
@@ -74,6 +79,9 @@ namespace ctranslate2 {
       asm volatile("fma.rn.f16x2 %0, %1, %2, %3;\n" : "=r"(h[3]) : "r"(h[3]), "r"(ONE_SIXTEENTH), "r"(NEG_64));
 
       return result;
+#else
+      assert(false);
+#endif
     }
   }
 }
